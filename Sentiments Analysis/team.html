@@ -73,23 +73,47 @@
 
     <section class="py-5">
         <div class="container">
-            <div class="box">
-                <img src="" alt="Team Member" style="width: 150px; height: auto; margin: 0 auto 20px;">
-                <h2></h2>
-                <p>Lead Developer</p>
-            </div>
-            <div class="box">
-                <img src="" alt="Team Member" style="width: 150px; height: auto; margin: 0 auto 20px;">
-                <h2></h2>
-                <p></p>
+            <h2 class="text-center mb-5">Our Team</h2>
+            <div class="swiper team-carousel">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="box">
+                            <img src="ImageSemantics/wits-university-of-the-witwatersrand6461.jpg" alt="Team Member" style="width: 100%; border-radius: 8px;">
+                            <h3>John Doe</h3>
+                            <p>Lead Developer</p>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="box">
+                            <img src="ImageSemantics/TKG.JO_BIG.png" alt="Team Member" style="width: 100%; border-radius: 8px;">
+                            <h3>Jane Smith</h3>
+                            <p>Project Manager</p>
+                        </div>
+                    </div>
+                    <!-- Add more slides as needed -->
+                </div>
+                <div class="swiper-pagination"></div>
             </div>
         </div>
     </section>
+
 
     <footer style="height: 100px; background-color: black; color: white; display: flex; justify-content: center; align-items: center;">
         <div>
             <p>Copyright © 2025 GRIT Lab Africa. All Rights Reserved</p>
         </div>
     </footer>
+
+    <script>
+        const teamSwiper = new Swiper('.team-carousel', {
+            loop: true,
+            slidesPerView: 3,
+            spaceBetween: 20,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+        });
+    </script>
 </body>
 </html>

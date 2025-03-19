@@ -3,91 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Sentiment Analysis Dashboard</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Bootstrap CSS for styling -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .container { text-align: center; margin-top: 20px; }
-        .box { border: 1px solid #ccc; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin: 20px auto; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        #map {
+            height: 400px; /* Reduced map height */
+            width: 60%; /* Map takes 60% of the width */
+            margin: 10px;
+        }
+        #legend {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 250px;
+            height: 180px;
+            background-color: white;
+            z-index: 9999;
+            font-size: 14px;
+            border: 2px solid grey;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #charts {
+            width: 35%; /* Charts take 35% of the width */
+            margin: 10px;
+        }
+        #chart-container, #histogram-container {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 20px;
+            border: 2px solid grey;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .chart-title {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #province-select {
+            margin: 10px;
+            width: calc(100% - 20px);
+        }
+        .navbar {
+            width: 100%;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-    <header style="height: 115px; background-color: #ffffff;">
-        <div class="container-fluid">
-            <div class="row p-0 border-bottom align-items-center">
-                <!-- Left Logo -->
-                <div class="col-sm-4 col-lg-3 text-sm-start">
-                    <div class="main-logo">
-                        <a href="index.html">
-                            <img src="ImageSemantics/wits-university-of-the-witwatersrand6461.jpg" alt="Icon Context" 
-                                 style="width: 150px; height: auto; display: block; margin: 0;">
-                        </a>
-                    </div>
-                </div>
-                <!-- Center Menu -->
-                <div class="col-sm-4 col-lg-6">
-                    <div class="d-flex justify-content-center align-items-center">
-                        <nav class="main-menu d-flex navbar navbar-expand-lg" style="padding: 5px; margin: 0;">
-                            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
-                                    aria-controls="offcanvasNavbar">
-                                <span class="navbar-toggler-icon"></span>
-                            </button>
-                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-                                <div class="offcanvas-header justify-content-center">
-                                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                                </div>
-                                <div class="offcanvas-body" style="text-align: center; margin: 0;">
-                                    <ul class="navbar-nav ms-auto justify-content-end menu-list list-unstyled d-flex gap-md-3 mb-0">
-                                        <li class="nav-item active" style="margin-top: 10px;">
-                                            <a href="index.html" class="nav-link" style="font-size: 20px;">Home</a>
-                                        </li>
-                                        <li class="nav-item dropdown" style="margin-top: 10px;">
-                                            <a href="team.html" class="nav-link" style="font-size: 20px;">Team</a>
-                                        </li>
-                                        <li class="nav-item" style="margin-top: 10px;">
-                                            <a href="contact.html" class="nav-link" style="font-size: 20px;">Contact</a>
-                                        </li>
-                                        <li class="nav-item" style="margin-top: 10px;">
-                                            <a href="about.html" class="nav-link" style="font-size: 20px;">About</a>
-                                        </li>
-                                        <li class="nav-item" style="margin-top: 10px;">
-                                            <a href="dashboard.html" class="nav-link" style="font-size: 20px;">Dashboard</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </nav>
-                    </div>
-                </div>
-                <!-- Right Logo -->
-                <div class="col-sm-4 col-lg-3 text-sm-end">
-                    <div class="main-logo" style="display: flex; justify-content: flex-end; align-items: center;">
-                        <img src="ImageSemantics/WhatsApp Image 2025-03-18 at 22.53.20_c9b10453.jpg" alt="Icon Context" 
-                             style="width: 150px; height: 90px; padding-top: 25px;">
-                        <img src="ImageSemantics/TKG.JO_BIG.png" alt="Icon Context" 
-                             style="width: 150px; height: 30px;">
-                    </div>
-                </div>
-            </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Sentiment Analysis Dashboard</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
         </div>
-    </header>
+    </nav>
+    
+    <div id="map"></div>
+    <div id="charts">
+        <div id="chart-container">
+            <div class="chart-title">Average Sentiment by Province</div>
+            <canvas id="sentimentChart"></canvas>
+        </div>
+        <div id="histogram-container">
+            <div class="chart-title">Sentiment Distribution</div>
+            <select id="province-select">
+                <option value="All">All Provinces</option>
+                <option value="Eastern Cape">Eastern Cape</option>
+                <option value="Free State">Free State</option>
+                <option value="Gauteng">Gauteng</option>
+                <option value="KwaZulu-Natal">KwaZulu-Natal</option>
+                <option value="Limpopo">Limpopo</option>
+                <option value="Mpumalanga">Mpumalanga</option>
+                <option value="Northern Cape">Northern Cape</option>
+                <option value="North West">North West</option>
+                <option value="Western Cape">Western Cape</option>
+            </select>
+            <canvas id="histogramChart"></canvas>
+        </div>
+    </div>
+    <div id="legend">
+        <strong>Sentiment Legend</strong><br>
+        <i style="background: #FF4500; width: 20px; height: 20px; display: inline-block;"></i> Strong Negative (-1 to -0.5)<br>
+        <i style="background: lightblue; width: 20px; height: 20px; display: inline-block;"></i> Weak Negative (-0.49 to -0.01)<br>
+        <i style="background: #FFD700; width: 20px; height: 20px; display: inline-block;"></i> Neutral (0)<br>
+        <i style="background: #ADFF2F; width: 20px; height: 20px; display: inline-block;"></i> Weak Positive (0.01 to 0.49)<br>
+        <i style="background: #006400; width: 20px; height: 20px; display: inline-block;"></i> Strong Positive (0.5 to 1)<br>
+        <i style="background: gray; width: 20px; height: 20px; display: inline-block;"></i> No Data Available<br>
+    </div>
 
-    <section class="py-5">
-        <div class="container">
-            <div class="box">
-                <h2>Project Status</h2>
-                <p>Current Progress: 75%</p>
-            </div>
-            <div class="box">
-                <h2>Active Users</h2>
-                <p>Total Users: 150</p>
-            </div>
-        </div>
-    </section>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Sample data (replace with actual data from your CSV)
+        const provinceAvgSentiment = {
+            "Eastern Cape": 0.3,
+            "Free State": -0.2,
+            "Gauteng": 0.6,
+            "KwaZulu-Natal": 0.1,
+            "Limpopo": -0.5,
+            "Mpumalanga": 0.4,
+            "Northern Cape": 0.0,
+            "North West": -0.1,
+            "Western Cape": 0.7
+        };
 
-    <footer style="height: 100px; background-color: black; color: white; display: flex; justify-content: center; align-items: center;">
-        <div>
-            <p>Copyright © 2025 GRIT Lab Africa. All Rights Reserved</p>
-        </div>
-    </footer>
+        // Sample sentiment distribution data for each province
+        const provinceSentimentDistribution = {
+            "Eastern Cape": [-0.2, 0.1, 0.4, 0.5, 0.3, -0.1, 0.2],
+            "Free State": [-0.3, -0.4, 0.1, 0.2, -0.2, 0.0, -0.1],
+            "Gauteng": [0.5, 0.6, 0.7, 0.8, 0.9, 0.4, 0.3],
+            "KwaZulu-Natal": [0.0, 0.1, -0.1, 0.2, 0.3, -0.2, 0.1],
+            "Limpopo": [-0.5, -0.6, -0.4, -0.3, -0.2, -0.1, 0.0],
+            "Mpumalanga": [0.3, 0.4, 0.5, 0.6, 0.2, 0.1, 0.0],
+            "Northern Cape": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "North West": [-0.1, -0.2, 0.0, 0.1, -0.1, 0.0, -0.2],
+            "Western Cape": [0.6, 0.7, 0.8, 0.9, 0.5, 0.4, 0.3]
+        };
+
+        // Function to get color based on sentiment score
+        function getColor(sentiment) {
+            if (-1 <= sentiment && sentiment <= -0.5) return "#FF4500"; // Strong negative
+            else if (-0.49 <= sentiment && sentiment <= -0.01) return "lightblue"; // Weak negative
+            else if (sentiment === 0) return "#FFD700"; // Neutral
+            else if (0.01 <= sentiment && sentiment <= 0.49) return "#ADFF2F"; // Weak positive
+            else if (0.5 <= sentiment && sentiment <= 1) return "#006400"; // Strong positive
+            else return "gray"; // Default color
+        }
+
+        // Initialize the map focused on South Africa with zoom limits
+        const map = L.map('map', {
+            minZoom: 5, // Minimum zoom level
+            maxZoom: 10, // Maximum zoom level
+        }).setView([-28.4796, 24.6981], 5); // Centered on South Africa
+
+        // Add a tile layer (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Load GeoJSON data (replace with your GeoJSON file)
+        fetch('za.json')
+            .then(response => response.json())
+            .then(geojsonData => {
+                L.geoJSON(geojsonData, {
+                    style: function (feature) {
+                        const provinceName = feature.properties.name;
+                        const avgSentiment = provinceAvgSentiment[provinceName];
+                        return {
+                            fillColor: getColor(avgSentiment),
+                            color: "black",
+                            weight: 2,
+                            fillOpacity: 0.6
+                        };
+                    },
+                    onEachFeature: function (feature, layer) {
+                        const provinceName = feature.properties.name;
+                        const avgSentiment = provinceAvgSentiment[provinceName] || "No Data";
+                        layer.bindTooltip(`${provinceName}: Avg Sentiment ${avgSentiment}`);
+                    }
+                }).addTo(map);
+            });
+
+        // Create the bar chart
+        const ctx = document.getElementById('sentimentChart').getContext('2d');
+        const sentimentChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(provinceAvgSentiment),
+                datasets: [{
+                    label: 'Average Sentiment',
+                    data: Object.values(provinceAvgSentiment),
+                    backgroundColor: Object.values(provinceAvgSentiment).map(sentiment => 
+                        sentiment > 0 ? 'green' : 'red'
+                    ),
+                    borderColor: 'black',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Function to create the histogram chart
+        function createHistogramChart(data) {
+            const histogramCtx = document.getElementById('histogramChart').getContext('2d');
+
+            // Define bins for the histogram
+            const bins = [-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1];
+            const binLabels = bins.slice(0, -1).map((bin, index) => `${bin} to ${bins[index + 1]}`);
+
+            // Calculate frequencies for each bin
+            const frequencies = new Array(bins.length - 1).fill(0);
+            data.forEach(value => {
+                for (let i = 0; i < bins.length - 1; i++) {
+                    if (value >= bins[i] && value < bins[i + 1]) {
+                        frequencies[i]++;
+                        break;
+                    }
+                }
+            });
+
+            // Destroy the previous chart instance if it exists
+            if (window.histogramChartInstance) {
+                window.histogramChartInstance.destroy();
+            }
+
+            // Create a new histogram chart
+            window.histogramChartInstance = new Chart(histogramCtx, {
+                type: 'bar',
+                data: {
+                    labels: binLabels,
+                    datasets: [{
+                        label: 'Frequency',
+                        data: frequencies,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Frequency'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Sentiment Range'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Sentiment Distribution'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to update the histogram based on the selected province
+        function updateHistogram(province) {
+            const data = province === "All" 
+                ? Object.values(provinceSentimentDistribution).flat() 
+                : provinceSentimentDistribution[province];
+            createHistogramChart(data);
+        }
+
+        // Initialize the histogram with all provinces' data
+        updateHistogram("All");
+
+        // Add event listener to the province select dropdown
+        document.getElementById('province-select').addEventListener('change', function (e) {
+            const selectedProvince = e.target.value;
+            updateHistogram(selectedProvince);
+        });
+    </script>
 </body>
 </html>
