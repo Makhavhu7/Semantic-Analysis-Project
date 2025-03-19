@@ -166,28 +166,28 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Load GeoJSON data (replace with your GeoJSON file)
-        fetch('za.json')
-            .then(response => response.json())
-            .then(geojsonData => {
-                L.geoJSON(geojsonData, {
-                    style: function (feature) {
-                        const provinceName = feature.properties.name;
-                        const avgSentiment = provinceAvgSentiment[provinceName];
-                        return {
-                            fillColor: getColor(avgSentiment),
-                            color: "black",
-                            weight: 2,
-                            fillOpacity: 0.6
-                        };
-                    },
-                    onEachFeature: function (feature, layer) {
-                        const provinceName = feature.properties.name;
-                        const avgSentiment = provinceAvgSentiment[provinceName] || "No Data";
-                        layer.bindTooltip(`${provinceName}: Avg Sentiment ${avgSentiment}`);
-                    }
-                }).addTo(map);
-            });
+    fetch('za.json')
+        .then(response => response.json())
+        .then(geojsonData => {
+            L.geoJSON(geojsonData, {
+                style: function (feature) {
+                    const provinceName = feature.properties.name; // Get province name
+                    const avgSentiment = provinceAvgSentiment[provinceName] || null; // Get sentiment score
+                    console.log(`Province: ${provinceName}, Sentiment: ${avgSentiment}`); // Debugging
+                    return {
+                        fillColor: getColor(avgSentiment), // Determine fill color
+                        color: "black", // Border color
+                        weight: 2, // Border thickness
+                        fillOpacity: 0.6 // Transparency
+                    };
+                },
+                onEachFeature: function (feature, layer) {
+                    const provinceName = feature.properties.name;
+                    const avgSentiment = provinceAvgSentiment[provinceName] || "No Data";
+                    layer.bindTooltip(`${provinceName}: Avg Sentiment ${avgSentiment}`); // Tooltip
+                }
+            }).addTo(map);
+        });
 
         // Create the bar chart
         const ctx = document.getElementById('sentimentChart').getContext('2d');
