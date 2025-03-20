@@ -118,42 +118,22 @@
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
     <script>
-        // Sample data (replace with actual data from your CSV)
-        const provinceAvgSentiment = {
-            "Eastern Cape": 0.3,
-            "Free State": -0.2,
-            "Gauteng": 0.6,
-            "KwaZulu-Natal": 0.1,
-            "Limpopo": -0.5,
-            "Mpumalanga": 0.4,
-            "Northern Cape": 0.0,
-            "North West": -0.1,
-            "Western Cape": 0.7
-        };
+        let provinceAvgSentiment = {};
+        let provinceSentimentDistribution = {};
 
-        // Sample sentiment distribution data for each province
-        const provinceSentimentDistribution = {
-            "Eastern Cape": [-0.2, 0.1, 0.4, 0.5, 0.3, -0.1, 0.2],
-            "Free State": [-0.3, -0.4, 0.1, 0.2, -0.2, 0.0, -0.1],
-            "Gauteng": [0.5, 0.6, 0.7, 0.8, 0.9, 0.4, 0.3],
-            "KwaZulu-Natal": [0.0, 0.1, -0.1, 0.2, 0.3, -0.2, 0.1],
-            "Limpopo": [-0.5, -0.6, -0.4, -0.3, -0.2, -0.1, 0.0],
-            "Mpumalanga": [0.3, 0.4, 0.5, 0.6, 0.2, 0.1, 0.0],
-            "Northern Cape": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "North West": [-0.1, -0.2, 0.0, 0.1, -0.1, 0.0, -0.2],
-            "Western Cape": [0.6, 0.7, 0.8, 0.9, 0.5, 0.4, 0.3]
-        };
+        // Function to get continuous color based on sentiment score using a color scale
+function getColor(sentiment) {
+    // Define a continuous color scale using D3
+    const colorScale = d3.scaleSequential(d3.interpolateRdYlGn).domain([-1, 1]);
 
-        // Function to get color based on sentiment score
-        function getColor(sentiment) {
-            if (-1 <= sentiment && sentiment <= -0.5) return "#FF4500"; // Strong negative
-            else if (-0.49 <= sentiment && sentiment <= -0.01) return "lightblue"; // Weak negative
-            else if (sentiment === 0) return "#FFD700"; // Neutral
-            else if (0.01 <= sentiment && sentiment <= 0.49) return "#ADFF2F"; // Weak positive
-            else if (0.5 <= sentiment && sentiment <= 1) return "#006400"; // Strong positive
-            else return "gray"; // Default color
-        }
+    // Return the color based on the sentiment value
+    return colorScale(sentiment);
+}
+
 
         // Initialize the map focused on South Africa with zoom limits
         const map = L.map('map', {
@@ -166,6 +146,66 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
+        // Function to load and parse CSV data
+
+function loadCSVData() {
+    fetch('sentiments.csv')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch CSV file: ${response.status} ${response.statusText}`);
+            }
+            return response.text();
+        })
+        .then(csvText => {
+            console.log("CSV file loaded successfully:", csvText); // Debugging
+            Papa.parse(csvText, {
+                header: true,
+                dynamicTyping: true,
+                complete: function(results) {
+                    if (results.errors.length > 0) {
+                        console.error("Errors parsing CSV:", results.errors); // Debugging
+                        return;
+                    }
+                    const data = results.data;
+                    console.log("Parsed CSV data:", data); // Debugging
+
+                    // Process each row in the CSV
+                    data.forEach(row => {
+                        const province = row.Province;
+                        const sentimentValues = Object.values(row).slice(1).filter(val => !isNaN(val)); // Extract and filter sentiment scores
+
+                        if (sentimentValues.length === 0) {
+                            console.warn(`No valid sentiment values found for province: ${province}`);
+                            return;
+                        }
+
+                        // Calculate average sentiment for the province
+                        const sum = sentimentValues.reduce((acc, val) => acc + val, 0);
+                        const avg = sum / sentimentValues.length;
+
+                        // Store average sentiment and distribution
+                        provinceAvgSentiment[province] = avg;
+                        provinceSentimentDistribution[province] = sentimentValues;
+                    });
+
+                    console.log("Processed data:", { provinceAvgSentiment, provinceSentimentDistribution }); // Debugging
+
+                    // Update the map and charts with the new data
+                    updateMap();
+                    updateCharts();
+                },
+                error: function(error) {
+                    console.error("Error parsing CSV:", error); // Debugging
+                }
+            });
+        })
+        .catch(error => {
+            console.error("Error loading CSV file:", error); // Debugging
+        });
+}
+        // Function to update the map with the new data
+        // Function to update the map with the new data
+function updateMap() {
     fetch('za.json')
         .then(response => response.json())
         .then(geojsonData => {
@@ -173,9 +213,8 @@
                 style: function (feature) {
                     const provinceName = feature.properties.name; // Get province name
                     const avgSentiment = provinceAvgSentiment[provinceName] || null; // Get sentiment score
-                    console.log(`Province: ${provinceName}, Sentiment: ${avgSentiment}`); // Debugging
                     return {
-                        fillColor: getColor(avgSentiment), // Determine fill color
+                        fillColor: getColor(avgSentiment), // Apply continuous color scale
                         color: "black", // Border color
                         weight: 2, // Border thickness
                         fillOpacity: 0.6 // Transparency
@@ -188,36 +227,49 @@
                 }
             }).addTo(map);
         });
+}
 
-        // Create the bar chart
-        const ctx = document.getElementById('sentimentChart').getContext('2d');
-        const sentimentChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(provinceAvgSentiment),
-                datasets: [{
-                    label: 'Average Sentiment',
-                    data: Object.values(provinceAvgSentiment),
-                    backgroundColor: Object.values(provinceAvgSentiment).map(sentiment => 
-                        sentiment > 0 ? 'green' : 'red'
-                    ),
-                    borderColor: 'black',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+        // Function to update the charts with the new data
+        function updateCharts() {
+            // Create the bar chart
+            const ctx = document.getElementById('sentimentChart').getContext('2d');
+            const sentimentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(provinceAvgSentiment),
+                    datasets: [{
+                        label: 'Average Sentiment',
+                        data: Object.values(provinceAvgSentiment),
+                        backgroundColor: Object.values(provinceAvgSentiment).map(sentiment => 
+                            sentiment > 0 ? 'green' : 'red'
+                        ),
+                        borderColor: 'black',
+                        borderWidth: 1
+                    }]
                 },
-                plugins: {
-                    legend: {
-                        display: false
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
                     }
                 }
-            }
-        });
+            });
+
+            // Initialize the histogram with all provinces' data
+            updateHistogram("All");
+
+            // Add event listener to the province select dropdown
+            document.getElementById('province-select').addEventListener('change', function (e) {
+                const selectedProvince = e.target.value;
+                updateHistogram(selectedProvince);
+            });
+        }
 
         // Function to create the histogram chart
         function createHistogramChart(data) {
@@ -290,14 +342,8 @@
             createHistogramChart(data);
         }
 
-        // Initialize the histogram with all provinces' data
-        updateHistogram("All");
-
-        // Add event listener to the province select dropdown
-        document.getElementById('province-select').addEventListener('change', function (e) {
-            const selectedProvince = e.target.value;
-            updateHistogram(selectedProvince);
-        });
+        // Load CSV data and initialize the dashboard
+        loadCSVData();
     </script>
 </body>
 </html>
