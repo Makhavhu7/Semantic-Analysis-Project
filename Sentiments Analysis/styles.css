@@ -723,3 +723,51 @@ h1,h2,h3,h4,h5,h6 {
   }
 }
 
+header {
+    background-color: #ffffff;
+    padding: 10px 0;
+}
+
+.main-logo img {
+    height: auto;
+    margin: 0 5px;
+}
+
+.navbar-toggler {
+    font-size: 1.5rem;
+    background-color: #ddd;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+.center-menu nav ul {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nav-item a {
+    text-decoration: none;
+    color: black;
+    padding: 5px 10px;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+    .logo-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .center-menu {
+        display: none;
+    }
+
+    .navbar-toggler {
+        margin-left: auto;
+    }
+}
