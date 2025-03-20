@@ -722,52 +722,63 @@ h1,h2,h3,h4,h5,h6 {
     height: 740px;
   }
 }
+ 
+        /* General Styles */
+        header {
+            background-color: #ffffff;
+            padding: 10px 0;
+        }
 
-header {
-    background-color: #ffffff;
-    padding: 10px 0;
-}
+        .main-logo img {
+            height: auto;
+            margin: 0 5px;
+        }
 
-.main-logo img {
-    height: auto;
-    margin: 0 5px;
-}
+        .navbar-toggler {
+            font-size: 1.5rem;
+            background-color: #ddd;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+        }
 
-.navbar-toggler {
-    font-size: 1.5rem;
-    background-color: #ddd;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-}
+        
 
-.center-menu nav ul {
-    display: flex;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
+        .nav-item a {
+            text-decoration: none;
+            color: black;
+            padding: 5px 10px;
+        }
 
-.nav-item a {
-    text-decoration: none;
-    color: black;
-    padding: 5px 10px;
-}
+        /* Responsive Layout */
+        @media (max-width: 768px) {
+            .logo-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
 
-/* Responsive Layout */
-@media (max-width: 768px) {
-    .logo-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+            .right-logo {
+                display: none; /* Hide right logo on small screens */
+            }
 
-    .center-menu {
-        display: none;
-    }
+            .main-logo.d-block.d-md-none {
+                display: block; /* Show right logo next to left logos */
+            }
 
-    .navbar-toggler {
-        margin-left: auto;
-    }
-}
+            .center-menu {
+                display: none;
+            }
+
+            .navbar-toggler {
+                margin-left: auto;
+            }
+
+            /* Align Right Logo and Toggle Button */
+            .small-screen-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+  
