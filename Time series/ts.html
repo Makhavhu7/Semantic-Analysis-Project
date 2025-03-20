@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telkom Sentiment Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #0078d4;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        /* Chart Styling */
+        canvas {
+            width: 90vw !important;
+            height: 70vh !important;
+            max-width: 1200px;
+            max-height: 800px;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+            color: #0078d4;
+        }
+
+        /* Footer Styling */
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #0078d4;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Telkom Sentiment Analysis Dashboard
+    </header>
+
+    <div class="container">
+        <h1>Welcome to the Telkom Sentiment Analysis Dashboard</h1>
+        <p>
+            This dashboard provides a visual representation of sentiment analysis data for Telkom. 
+            The chart below displays daily sentiment trends, helping you understand customer feedback and opinions over time.
+        </p>
+        <p>
+            The sentiment scores are categorized into positive, neutral, and negative sentiments. 
+            The chart includes the following key elements:
+        </p>
+        <ul>
+            <li>
+                <strong>Average Daily Sentiment (Blue Line):</strong> 
+                This line represents the average sentiment score for each day. It shows how customer sentiment fluctuates over time.
+            </li>
+            <li>
+                <strong>Average Sentiment (Orange Dashed Line):</strong> 
+                This horizontal line represents the overall average sentiment score across all days. 
+            </li>
+            <li>
+                <strong>Upper Bound (Red Dashed Line):</strong> 
+                This line represents the average sentiment plus one standard deviation. It indicates the upper range of typical sentiment scores.
+            </li>
+            <li>
+                <strong>Lower Bound (Green Dashed Line):</strong> 
+                This line represents the average sentiment minus one standard deviation. It indicates the lower range of typical sentiment scores.
+            </li>
+        </ul>
+        <p>
+            <strong>How to Interpret the Chart:</strong><br>
+            - When the blue line (daily sentiment) is above the orange line (average), it indicates better-than-average sentiment.<br>
+            - When the blue line is below the orange line, it indicates worse-than-average sentiment.<br>
+            - If the blue line crosses the red or green dashed lines, it suggests unusually high or low sentiment, respectively.
+        </p>
+
+        <div class="loading" id="loadingMessage">Loading charts...</div>
+        <canvas id="sentimentChart" width="1200" height="600" aria-label="Daily Sentiment Chart"></canvas>
+    </div>
+
+    <footer>
+        &copy; 2023 Telkom Sentiment Analysis. All rights reserved.
+    </footer>
+
+    <script src="ts.js"></script>
+    <script>
+        // Hide loading message once charts are rendered
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("loadingMessage").style.display = "none";
+        });
+    </script>
+</body>
+</html>
