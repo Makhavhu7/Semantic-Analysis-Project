@@ -25,18 +25,10 @@
         }
         #legend {
             position: fixed;
-            bottom: 20px;
+            top: 500px;
             left: 20px;
-            width: 250px;
-            height: 180px;
-            background-color: white;
-            z-index: 9999;
-            font-size: 14px;
-            border: 2px solid grey;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        
         #charts {
             width: 35%; /* Charts take 35% of the width */
             margin: 10px;
@@ -108,12 +100,7 @@
     </div>
     <div id="legend">
         <strong>Sentiment Legend</strong><br>
-        <i style="background: #FF4500; width: 20px; height: 20px; display: inline-block;"></i> Strong Negative (-1 to -0.5)<br>
-        <i style="background: lightblue; width: 20px; height: 20px; display: inline-block;"></i> Weak Negative (-0.49 to -0.01)<br>
-        <i style="background: #FFD700; width: 20px; height: 20px; display: inline-block;"></i> Neutral (0)<br>
-        <i style="background: #ADFF2F; width: 20px; height: 20px; display: inline-block;"></i> Weak Positive (0.01 to 0.49)<br>
-        <i style="background: #006400; width: 20px; height: 20px; display: inline-block;"></i> Strong Positive (0.5 to 1)<br>
-        <i style="background: gray; width: 20px; height: 20px; display: inline-block;"></i> No Data Available<br>
+        <div id="continuous-legend" style="height: 20px; width: 100%;"></div>
     </div>
 
     <!-- Leaflet JS -->
@@ -122,6 +109,25 @@
     <script src="https://d3js.org/d3.v6.min.js"></script>
 
     <script>
+
+        // Create a continuous color scale for the sentiment legend
+    const colorScale = d3.scaleSequential(d3.interpolateRdYlGn).domain([-1, 1]);
+
+    // Create a color gradient for the legend
+    const legend = d3.select("#continuous-legend")
+        .style("background", "linear-gradient(to right, " + colorScale(-1) + ", " + colorScale(1) + ")");
+
+    // Add labels for the sentiment range
+    const labels = [-1, 0, 1];
+    const labelContainer = d3.select("#legend").append("div").style("display", "flex");
+
+    labels.forEach((label, index) => {
+        labelContainer.append("div")
+            .style("flex", 1)
+            .style("text-align", "center")
+            .text(label === -1 ? "Strong Negative" : label === 1 ? "Strong Positive" : "Neutral");
+    });
+
         let provinceAvgSentiment = {};
         let provinceSentimentDistribution = {};
 
@@ -327,7 +333,6 @@ function updateMap() {
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Sentiment Distribution'
                         }
                     }
                 }
